@@ -8,6 +8,22 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 import java.util.stream.Collectors;
 
+//Spring Security doesn't know what your User entity looks like.
+//
+//It only understands objects implementing
+//
+//UserDetails
+//
+//So we create an adapter.
+//
+//Database User
+//      │
+//      ▼
+//CustomUserDetails
+//      │
+//      ▼
+//Spring Security
+
 public class CustomUserDetails implements UserDetails {
 
     private final User user;

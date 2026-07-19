@@ -1,6 +1,8 @@
 package com.campusmanagement.auth.controller;
 
+import com.campusmanagement.auth.dto.request.LoginRequest;
 import com.campusmanagement.auth.dto.request.RegisterRequest;
+import com.campusmanagement.auth.dto.response.LoginResponse;
 import com.campusmanagement.auth.dto.response.RegisterResponse;
 import com.campusmanagement.auth.service.AuthService;
 import jakarta.validation.Valid;
@@ -10,7 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/v1/auth")
+@RequestMapping("/api/auth")
 @RequiredArgsConstructor
 public class AuthController {
 
@@ -20,12 +22,28 @@ public class AuthController {
     public ResponseEntity<RegisterResponse> register(
             @Valid @RequestBody RegisterRequest request
     ) {
-
         RegisterResponse response = authService.register(request);
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(response);
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<LoginResponse> login(
+            @RequestBody @Valid LoginRequest request) {
+        System.out.println("came to controller");
+
+        return ResponseEntity.ok(authService.login(request));
+    }
+
+    @RequestMapping("/test")
+    public static class TestController {
+
+        @GetMapping
+        public String test() {
+            return "Authenticated";
+        }
     }
 
 }
