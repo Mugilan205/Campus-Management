@@ -30,6 +30,7 @@ public class JwtService {
 
         return Keys.hmacShaKeyFor(keyBytes);
     }
+
     public String generateToken(User user) {
 
         return Jwts.builder()
@@ -39,6 +40,7 @@ public class JwtService {
                 .signWith(getSigningKey())
                 .compact();
     }
+
     private Claims extractAllClaims(String token) { //gets all the claims
         return Jwts.parser()
                 .verifyWith((SecretKey) getSigningKey())
@@ -80,7 +82,5 @@ public class JwtService {
 
         return (username.equals(user.getUsername())) && !isTokenExpired(token);
     }
-
-
 
 }

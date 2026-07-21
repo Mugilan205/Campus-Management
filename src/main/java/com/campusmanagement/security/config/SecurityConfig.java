@@ -48,12 +48,12 @@ public class SecurityConfig {
         DaoAuthenticationProvider provider =
                 new DaoAuthenticationProvider(customUserDetailsService);
 
-        provider.setPasswordEncoder(passwordEncoder());
+        provider.setPasswordEncoder(new BCryptPasswordEncoder());
 
         return provider;
     }
 
-    @Bean
+    @Bean // tells spring object returned by the method should be managed as bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
