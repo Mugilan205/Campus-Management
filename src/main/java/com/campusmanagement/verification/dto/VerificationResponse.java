@@ -22,6 +22,10 @@ public class VerificationResponse {
 
     private String email;
 
+    public void setUserEmail(String email){
+        this.email = email ;
+    }
+
     private RequestedRole requestedRole;
 
     private VerificationStatus status;

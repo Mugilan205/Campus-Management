@@ -18,11 +18,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
+
+
 
 @Service
 @RequiredArgsConstructor
 @Transactional
-public abstract class VerificationServiceImpl implements VerificationService {
+public  class VerificationServiceImpl implements VerificationService {
 
     private final VerificationRepository verificationRepository;
     private final UserRepository userRepository;
@@ -36,6 +39,8 @@ public abstract class VerificationServiceImpl implements VerificationService {
 
         User currentUser = SecurityUtils.getCurrentUser();
 
+        System.out.println("Submitting verification for user: " + currentUser.getName());
+
         verificationRepository
                 .findByUserAndStatus(
                         currentUser,
@@ -48,14 +53,20 @@ public abstract class VerificationServiceImpl implements VerificationService {
         Verification verification =
                 verificationMapper.toEntity(request);
 
+        System.out.println(verification.getId());
+
         verification.setUser(currentUser);
         verification.setStatus(VerificationStatus.PENDING);
         verification.setSubmittedAt(LocalDateTime.now());
 
-        verification =
-                verificationRepository.save(verification);
+        verificationRepository.save(verification);
 
-        return verificationMapper.toResponse(verification);
+        VerificationResponse response = verificationMapper.toResponse(verification);
+
+//        response.setUserName(currentUser.getName());
+//        response.setUserEmail(currentUser.getEmail()); this fix is done in mapper so no need...
+
+        return response;
     }
 
 
@@ -110,4 +121,38 @@ public abstract class VerificationServiceImpl implements VerificationService {
 
         return verificationMapper.toResponse(verification);
     }
+
+    @Override
+    public VerificationResponse rejectVerification(
+            Long verificationId,
+            VerificationDecisionRequest request) {
+
+        Verification verification = verificationRepository.findById(verificationId)
+                .orElseThrow(() ->
+                        new RuntimeException("Verification not found"));
+
+        if (verification.getStatus() != VerificationStatus.PENDING) {
+            throw new RuntimeException(
+                    "Verification request has already been processed.");
+        }
+
+        verification.setStatus(VerificationStatus.REJECTED);
+        verification.setRemarks(request.getRemarks());
+        verification.setReviewedAt(LocalDateTime.now());
+
+        verificationRepository.save(verification);
+
+        return verificationMapper.toResponse(verification);
+    }
+
+    @Override
+    public List<VerificationResponse> getPendingVerifications() {
+
+        return verificationRepository
+                .findAllByStatus(VerificationStatus.PENDING)
+                .stream()
+                .map(verificationMapper::toResponse)
+                .toList();
+    }
+
 }

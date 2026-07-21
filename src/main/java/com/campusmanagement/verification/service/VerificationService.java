@@ -7,6 +7,7 @@ import com.campusmanagement.verification.dto.VerificationResponse;
 
 import java.util.List;
 
+
 public interface VerificationService {
 
     VerificationResponse submitVerification(VerificationRequest request);
