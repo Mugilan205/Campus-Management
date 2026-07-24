@@ -27,4 +27,6 @@ public class CommunityResponse {
     private String createdBy;
 
     private LocalDateTime createdAt;
+
+    private Long memberCount;
 }

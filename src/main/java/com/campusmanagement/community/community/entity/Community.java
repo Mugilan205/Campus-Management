@@ -7,8 +7,15 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 
+
+
 @Entity
-@Table(name = "communities")
+@Table(
+        name = "communities",
+        uniqueConstraints = {
+                @UniqueConstraint(columnNames = "name")
+        }
+)
 @Getter
 @Setter
 @NoArgsConstructor
@@ -35,10 +42,14 @@ public class Community {
     private CommunityVisibility visibility;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "created_by", nullable = false)
+    @JoinColumn(
+            name = "created_by",
+            nullable = false
+    )
     private User createdBy;
 
     @Builder.Default
     @Column(nullable = false)
-    private LocalDateTime createdAt = LocalDateTime.now();
+    private LocalDateTime createdAt =
+            LocalDateTime.now();
 }
