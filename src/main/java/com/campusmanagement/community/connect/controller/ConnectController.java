@@ -1,12 +1,10 @@
 package com.campusmanagement.community.connect.controller;
 
+import com.campusmanagement.community.connect.dto.response.ConnectionResponse;
 import com.campusmanagement.community.connect.service.ConnectService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/connect")
@@ -25,5 +23,37 @@ public class ConnectController {
         );
 
     }
+
+    @PatchMapping("/request/{requestId}/accept")
+    public ResponseEntity<ConnectionResponse> acceptConnectionRequest(
+            @PathVariable Long requestId
+    ) {
+
+        return ResponseEntity.ok(
+                connectService.acceptConnectionRequest(requestId)
+        );
+
+    }
+
+    @PatchMapping("/request/{requestId}/reject")
+    public ResponseEntity<ConnectionResponse> rejectConnectionRequest(
+            @PathVariable Long requestId
+    ) {
+        return ResponseEntity.ok(
+                connectService.rejectConnectionRequest(requestId)
+        );
+    }
+
+    @DeleteMapping("/request/{requestId}")
+    public ResponseEntity<Void> cancelConnectionRequest(
+            @PathVariable Long requestId
+    ) {
+
+        connectService.cancelConnectionRequest(requestId);
+
+        return ResponseEntity.noContent().build();
+    }
+
+
 
 }

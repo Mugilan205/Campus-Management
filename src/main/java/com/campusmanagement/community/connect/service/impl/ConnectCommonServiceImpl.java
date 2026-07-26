@@ -62,7 +62,60 @@ public class ConnectCommonServiceImpl
     }
 
     @Override
-    public Connection getPendingRequest(Long requestId) {
+    public Connection prepareConnectionRequest(
+            User sender,
+            User receiver
+    ) {
+
+        validateSelfConnection(sender, receiver);
+
+        Optional<Connection> existing =
+                connectionRepository.findConnectionBetween(
+                        sender,
+                        receiver
+                );
+
+        if (existing.isEmpty()) {
+
+            return Connection.builder()
+                    .sender(sender)
+                    .receiver(receiver)
+                    .status(ConnectionStatus.PENDING)
+                    .build();
+        }
+
+        Connection connection = existing.get();
+
+        switch (connection.getStatus()) {
+
+            case PENDING ->
+                    throw new BadRequestException(
+                            "Connection request already exists."
+                    );
+
+            case ACCEPTED ->
+                    throw new BadRequestException(
+                            "Users are already connected."
+                    );
+
+            case REJECTED -> {
+
+                connection.setSender(sender);
+                connection.setReceiver(receiver);
+                connection.setStatus(ConnectionStatus.PENDING);
+
+                return connection;
+            }
+        }
+
+        throw new IllegalStateException("Unknown connection state.");
+    }
+
+    @Override
+    public Connection getPendingRequestForReceiver(
+            Long requestId,
+            User receiver
+    ) {
 
         Connection connection =
                 connectionRepository.findById(requestId)
@@ -76,12 +129,21 @@ public class ConnectCommonServiceImpl
             throw new BadRequestException(
                     "Connection request is no longer pending."
             );
+        }
 
+        if (!connection.getReceiver()
+                .getId()
+                .equals(receiver.getId())) {
+
+            throw new ForbiddenException(
+                    "Only the receiver can perform this action."
+            );
         }
 
         return connection;
-
     }
+
+
 
     @Override
     public Connection getConnectionOrThrow(
@@ -97,39 +159,75 @@ public class ConnectCommonServiceImpl
                         ));
     }
 
+
     @Override
-    public void validateReceiver(
-            Connection connection,
+    public Connection getPendingRequestForSender(
+            Long requestId,
+            User sender
+    ) {
+
+        Connection connection =
+                connectionRepository.findById(requestId)
+                        .orElseThrow(() ->
+                                new ResourceNotFoundException(
+                                        "Connection request not found."
+                                ));
+
+        if (connection.getStatus() != ConnectionStatus.PENDING) {
+
+            throw new BadRequestException(
+                    "Connection request is no longer pending."
+            );
+        }
+
+        if (!connection.getSender()
+                .getId()
+                .equals(sender.getId())) {
+
+            throw new ForbiddenException(
+                    "Only the sender can perform this action."
+            );
+        }
+
+        return connection;
+    }
+
+    @Override
+    public Connection getAcceptedConnection(
+            Long connectionId,
             User currentUser
     ) {
 
-        if (!connection.getReceiver()
-                .getId()
-                .equals(currentUser.getId())) {
+        Connection connection =
+                connectionRepository.findById(connectionId)
+                        .orElseThrow(() ->
+                                new ResourceNotFoundException(
+                                        "Connection not found."
+                                ));
 
-            throw new ForbiddenException(
-                    "You are not allowed to perform this action."
-            );
-
-        }
-
-    }
-
-    @Override
-    public void validateAlreadyConnected(
-            Connection connection
-    ) {
-
-        if (connection.getStatus() == ConnectionStatus.ACCEPTED) {
+        if (connection.getStatus() != ConnectionStatus.ACCEPTED) {
 
             throw new BadRequestException(
-                    "Users are already connected."
+                    "Users are not connected."
             );
 
         }
 
-    }
+        boolean member =
+                connection.getSender().getId().equals(currentUser.getId())
+                        ||
+                        connection.getReceiver().getId().equals(currentUser.getId());
 
+        if (!member) {
+
+            throw new ForbiddenException(
+                    "Access denied."
+            );
+
+        }
+
+        return connection;
+    }
 
 
 }
