@@ -1,4 +1,4 @@
-package com.campusmanagement.community.common.service;
+package com.campusmanagement.community.common;
 
 import com.campusmanagement.community.announcement.entity.CommunityAnnouncement;
 import com.campusmanagement.community.announcement.repository.CommunityAnnouncementRepository;

@@ -1,6 +1,6 @@
 package com.campusmanagement.community.member.service;
 
-import com.campusmanagement.community.common.service.CommunityCommonService;
+import com.campusmanagement.community.common.CommunityCommonService;
 import com.campusmanagement.community.community.entity.Community;
 import com.campusmanagement.community.member.dto.CommunityMemberResponse;
 import com.campusmanagement.community.member.dto.UpdateCommunityMemberRoleRequest;

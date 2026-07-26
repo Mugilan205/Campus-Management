@@ -5,7 +5,7 @@ import com.campusmanagement.community.announcement.dto.CommunityAnnouncementResp
 import com.campusmanagement.community.announcement.entity.CommunityAnnouncement;
 import com.campusmanagement.community.announcement.mapper.CommunityAnnouncementMapper;
 import com.campusmanagement.community.announcement.repository.CommunityAnnouncementRepository;
-import com.campusmanagement.community.common.service.CommunityCommonService;
+import com.campusmanagement.community.common.CommunityCommonService;
 import com.campusmanagement.community.community.entity.Community;
 import com.campusmanagement.community.permission.CommunityPermissionService;
 import com.campusmanagement.security.SecurityUtils;
