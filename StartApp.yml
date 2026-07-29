@@ -1,0 +1,54 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: campus-management-postgres
+    restart: unless-stopped
+
+    environment:
+      POSTGRES_DB: campus_management
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: Mugilan205!
+
+    ports:
+      - "5432:5432"
+
+    volumes:
+      - campus-management-postgres-data:/var/lib/postgresql/data
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d campus_management"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+    image: campus-management-app
+    container_name: campus-management-app
+    restart: unless-stopped
+
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/campus_management
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: Mugilan205!
+
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+
+      SERVER_PORT: 8080
+
+      JWT_SECRET: 2d7eaf9b0f4d6c3a8e5b1f9c4783h332d3e5f7a9b2c4d6e8f1a3b5c7d9e
+      JWT_EXPIRATION: 3600000
+
+    ports:
+      - "8080:8080"
+
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  campus-management-postgres-data:
